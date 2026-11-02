@@ -542,7 +542,7 @@ xep_si_parse(PurpleConnection *pc, xmlnode *packet, PurpleBuddy *pb)
 static gboolean
 xep_cmp_addr(const char *host, const char *buddy_ip)
 {
-#if defined(AF_INET6) && defined(HAVE_GETADDRINFO)
+#if defined(PURPLE_HAS_IPV6) && defined(HAVE_GETADDRINFO)
 	struct addrinfo hint, *res = NULL;
 	int ret;
 
@@ -625,6 +625,7 @@ xmlnode_insert_twin_copy(xmlnode *node) {
 static gboolean
 add_ipv6_link_local_ifaces(xmlnode *cur_streamhost, const char *host,
 			   const PurpleBuddy *pb) {
+#ifdef PURPLE_HAS_IPV6
 	xmlnode *new_streamhost = NULL;
 	struct in6_addr in6_addr;
 	BonjourBuddy *bb;
@@ -651,6 +652,12 @@ add_ipv6_link_local_ifaces(xmlnode *cur_streamhost, const char *host,
 				  host);
 
 	return TRUE;
+#else
+    (void)cur_streamhost;
+    (void)host;
+    (void)pb;
+    return FALSE;
+#endif
 }
 
 static gboolean

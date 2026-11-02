@@ -25,7 +25,7 @@ BONJOURSOURCES = \
 
 AM_CFLAGS = $(st)
 
-libbonjour_la_LDFLAGS = -module -avoid-version
+libbonjour_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if STATIC_BONJOUR
 
@@ -40,7 +40,7 @@ else
 st =
 pkg_LTLIBRARIES       = libbonjour.la
 libbonjour_la_SOURCES = $(BONJOURSOURCES)
-libbonjour_la_LIBADD  = $(GLIB_LIBS) $(LIBXML_LIBS) $(AVAHI_LIBS)
+libbonjour_la_LIBADD  = $(GLIB_LIBS) $(LIBXML_LIBS) $(AVAHI_LIBS) $(PURPLE_DLL_LIBS)
 
 endif
 

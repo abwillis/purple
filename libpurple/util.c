@@ -3005,7 +3005,7 @@ purple_running_osx(void)
 typedef union purple_sockaddr {
 	struct sockaddr         sa;
 	struct sockaddr_in      sa_in;
-#if defined(AF_INET6)
+#ifdef PURPLE_HAS_IPV6
 	struct sockaddr_in6     sa_in6;
 #endif
 	struct sockaddr_storage sa_stor;
@@ -3028,7 +3028,7 @@ purple_fd_get_ip(int fd)
 	if (family == AF_INET) {
 		return g_strdup(inet_ntoa(addr.sa_in.sin_addr));
 	}
-#if defined(AF_INET6) && defined(HAVE_INET_NTOP)
+#if defined(PURPLE_HAS_IPV6) && defined(HAVE_INET_NTOP)
 	else if (family == AF_INET6) {
 		char host[INET6_ADDRSTRLEN];
 		const char *tmp;
@@ -3067,7 +3067,7 @@ purple_socket_speaks_ipv4(int fd)
 	switch (family) {
 	case AF_INET:
 		return TRUE;
-#if defined(IPV6_V6ONLY)
+#if defined(PURPLE_HAS_IPV6) && defined(IPV6_V6ONLY)
 	case AF_INET6:
 	{
 		int val = 0;

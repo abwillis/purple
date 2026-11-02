@@ -132,6 +132,26 @@
 #include "win32dep.h"
 #endif
 
+/*
+ * The OS/2 TCP/IP stack exposed by EMX/kLIBC is IPv4-only.  Some versions of
+ * the headers expose part of the IPv6 API (for example AF_INET6) without all
+ * of the types and functions libpurple needs.  Do not infer IPv6 support from
+ * a single socket constant on OS/2.
+ *
+ * configure defines PURPLE_DISABLE_IPV6 (or PURPLE_ENABLE_IPV6) in config.h
+ * from --disable-ipv6/--enable-ipv6 and the host type.  PURPLE_DISABLE_IPV6
+ * may also be supplied by another IPv4-only target.  An OS/2 toolchain with a
+ * complete IPv6 implementation can opt back in by defining PURPLE_ENABLE_IPV6.
+ */
+#if (defined(__OS2__) || defined(__EMX__) || defined(OS2)) && \
+        !defined(PURPLE_ENABLE_IPV6) && !defined(PURPLE_DISABLE_IPV6)
+# define PURPLE_DISABLE_IPV6 1
+#endif
+
+#if defined(AF_INET6) && !defined(PURPLE_DISABLE_IPV6)
+# define PURPLE_HAS_IPV6 1
+#endif
+
 #ifdef HAVE_CONFIG_H
 #if SIZEOF_TIME_T == 4
 #	define PURPLE_TIME_T_MODIFIER "lu"
@@ -162,7 +182,9 @@ typedef union
 {
 	struct sockaddr sa;
 	struct sockaddr_in in;
+#ifdef PURPLE_HAS_IPV6
 	struct sockaddr_in6 in6;
+#endif
 	struct sockaddr_storage storage;
 } common_sockaddr_t;
 

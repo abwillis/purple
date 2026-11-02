@@ -9,7 +9,7 @@ SILCSOURCES = silc.c silcpurple.h buddy.c chat.c ft.c ops.c pk.c util.c wb.c wb.
 
 AM_CFLAGS = $(st)
 
-libsilcpurple_la_LDFLAGS = -module -avoid-version
+libsilcpurple_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if STATIC_SILC
 
@@ -24,7 +24,7 @@ else
 st = $(SILC_CFLAGS)
 pkg_LTLIBRARIES          = libsilcpurple.la
 libsilcpurple_la_SOURCES = $(SILCSOURCES)
-libsilcpurple_la_LIBADD  = $(GLIB_LIBS) $(SILC_LIBS)
+libsilcpurple_la_LIBADD  = $(GLIB_LIBS) $(SILC_LIBS) $(PURPLE_DLL_LIBS)
 
 endif
 

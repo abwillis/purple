@@ -24,27 +24,27 @@ SUBDIRS = \
 
 plugindir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 
-autoaccept_la_LDFLAGS       = -module -avoid-version
-buddynote_la_LDFLAGS        = -module -avoid-version
-ciphertest_la_LDFLAGS		= -module -avoid-version
-codeinline_la_LDFLAGS		= -module -avoid-version
-debug_example_la_LDFLAGS    = -module -avoid-version
-helloworld_la_LDFLAGS       = -module -avoid-version
-idle_la_LDFLAGS             = -module -avoid-version
-joinpart_la_LDFLAGS         = -module -avoid-version
-log_reader_la_LDFLAGS       = -module -avoid-version
-newline_la_LDFLAGS          = -module -avoid-version
-notify_example_la_LDFLAGS   = -module -avoid-version
-offlinemsg_la_LDFLAGS       = -module -avoid-version
-one_time_password_la_LDFLAGS	= -module -avoid-version
-pluginpref_example_la_LDFLAGS = -module -avoid-version
-psychic_la_LDFLAGS          = -module -avoid-version
-signals_test_la_LDFLAGS		= -module -avoid-version
-simple_la_LDFLAGS			= -module -avoid-version
-statenotify_la_LDFLAGS      = -module -avoid-version
+autoaccept_la_LDFLAGS       = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+buddynote_la_LDFLAGS        = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+ciphertest_la_LDFLAGS        = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+codeinline_la_LDFLAGS        = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+debug_example_la_LDFLAGS    = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+helloworld_la_LDFLAGS       = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+idle_la_LDFLAGS             = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+joinpart_la_LDFLAGS         = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+log_reader_la_LDFLAGS       = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+newline_la_LDFLAGS          = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+notify_example_la_LDFLAGS   = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+offlinemsg_la_LDFLAGS       = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+one_time_password_la_LDFLAGS    = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+pluginpref_example_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+psychic_la_LDFLAGS          = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+signals_test_la_LDFLAGS        = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+simple_la_LDFLAGS            = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+statenotify_la_LDFLAGS      = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 # this can't be in a conditional otherwise automake 1.4 yells
-dbus_example_la_LDFLAGS     = -module -avoid-version
+dbus_example_la_LDFLAGS     = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if PLUGINS
 
@@ -90,29 +90,29 @@ signals_test_la_SOURCES		= signals-test.c
 simple_la_SOURCES			= simple.c
 statenotify_la_SOURCES      = statenotify.c
 
-autoaccept_la_LIBADD        = $(GLIB_LIBS)
-buddynote_la_LIBADD         = $(GLIB_LIBS)
-ciphertest_la_LIBADD		= $(GLIB_LIBS)
-codeinline_la_LIBADD		= $(GLIB_LIBS)
-idle_la_LIBADD              = $(GLIB_LIBS)
-joinpart_la_LIBADD          = $(GLIB_LIBS)
-log_reader_la_LIBADD        = $(GLIB_LIBS)
-newline_la_LIBADD           = $(GLIB_LIBS)
-notify_example_la_LIBADD    = $(GLIB_LIBS)
-offlinemsg_la_LIBADD        = $(GLIB_LIBS)
-one_time_password_la_LIBADD = $(GLIB_LIBS)
-pluginpref_example_la_LIBADD = $(GLIB_LIBS)
-psychic_la_LIBADD           = $(GLIB_LIBS)
-signals_test_la_LIBADD		= $(GLIB_LIBS)
-simple_la_LIBADD			= $(GLIB_LIBS)
-statenotify_la_LIBADD       = $(GLIB_LIBS)
+autoaccept_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+buddynote_la_LIBADD         = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+ciphertest_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+codeinline_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+idle_la_LIBADD              = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+joinpart_la_LIBADD          = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+log_reader_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+newline_la_LIBADD           = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+notify_example_la_LIBADD    = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+offlinemsg_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+one_time_password_la_LIBADD = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+pluginpref_example_la_LIBADD = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+psychic_la_LIBADD           = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+signals_test_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+simple_la_LIBADD            = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+statenotify_la_LIBADD       = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
 
 if ENABLE_DBUS
 
 CLEANFILES              = dbus-example-bindings.c
 dbus_example_la_SOURCES = dbus-example.c
 
-dbus_example_la_LIBADD      = $(GLIB_LIBS) $(DBUS_LIBS)
+dbus_example_la_LIBADD      = $(GLIB_LIBS) $(DBUS_LIBS) $(PURPLE_DLL_LIBS)
 
 .PHONY: always
 

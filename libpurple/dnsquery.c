@@ -165,7 +165,11 @@ resolve_ip(PurpleDnsQueryData *query_data)
 
 	g_snprintf(servname, sizeof(servname), "%d", query_data->port);
 	memset(&hints, 0, sizeof(hints));
+#ifdef PURPLE_DISABLE_IPV6
+    hints.ai_family = AF_INET;
+#else
 	hints.ai_family = AF_UNSPEC;
+#endif
 	hints.ai_flags |= AI_NUMERICHOST;
 
 	if (0 == getaddrinfo(query_data->hostname, servname, &hints, &res))
@@ -338,6 +342,9 @@ purple_dnsquery_resolver_run(int child_out, int child_in, gboolean show_debug)
 #ifdef HAVE_GETADDRINFO
 		g_snprintf(servname, sizeof(servname), "%d", dns_params.port);
 		memset(&hints, 0, sizeof(hints));
+#ifdef PURPLE_DISABLE_IPV6
+        hints.ai_family = AF_INET;
+#endif
 
 		/* This is only used to convert a service
 		 * name to a port number. As we know we are
@@ -763,6 +770,9 @@ dns_thread(gpointer data)
 #ifdef HAVE_GETADDRINFO
 	g_snprintf(servname, sizeof(servname), "%d", query_data->port);
 	memset(&hints,0,sizeof(hints));
+#ifdef PURPLE_DISABLE_IPV6
+    hints.ai_family = AF_INET;
+#endif
 
 	/*
 	 * This is only used to convert a service

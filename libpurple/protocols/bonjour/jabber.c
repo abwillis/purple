@@ -657,15 +657,19 @@ _server_socket_handler(gpointer data, int server_socket, PurpleInputCondition co
 
 	/* Look for the buddy that has opened the conversation and fill information */
 #ifdef HAVE_INET_NTOP
+#ifdef PURPLE_HAS_IPV6
 	if (their_addr.sa.sa_family == AF_INET6) {
 		address_text = inet_ntop(their_addr.sa.sa_family,
 			&their_addr.in6.sin6_addr, addrstr, sizeof(addrstr));
 
 		append_iface_if_linklocal(addrstr, their_addr.in6.sin6_scope_id);
 	} else {
+#endif
 		address_text = inet_ntop(their_addr.sa.sa_family,
 			&their_addr.in.sin_addr, addrstr, sizeof(addrstr));
+#ifdef PURPLE_HAS_IPV6
 	}
+#endif
 #else
 	address_text = inet_ntoa(their_addr.in.sin_addr);
 #endif
@@ -715,7 +719,7 @@ start_serversocket_listening(int port, int socket, struct sockaddr *addr, size_t
 			purple_debug_warning("bonjour", "Not attempting random port assignment.\n");
 			return -1;
 		}
-#ifdef PF_INET6
+#ifdef PURPLE_HAS_IPV6
 		if (ip6)
 			((struct sockaddr_in6 *) addr)->sin6_port = 0;
 		else
@@ -756,7 +760,7 @@ bonjour_jabber_start(BonjourJabber *jdata)
 	int ipv6_port = -1, ipv4_port = -1;
 
 	/* Open a listening socket for incoming conversations */
-#ifdef PF_INET6
+#ifdef PURPLE_HAS_IPV6
 	jdata->socket6 = socket(PF_INET6, SOCK_STREAM, 0);
 #endif
 	jdata->socket = socket(PF_INET, SOCK_STREAM, 0);
@@ -766,7 +770,7 @@ bonjour_jabber_start(BonjourJabber *jdata)
 		return -1;
 	}
 
-#ifdef PF_INET6
+#ifdef PURPLE_HAS_IPV6
 	if (jdata->socket6 != -1) {
 		struct sockaddr_in6 addr6;
 #ifdef IPV6_V6ONLY
@@ -1364,7 +1368,11 @@ bonjour_jabber_get_local_ips(int fd)
 	{
 	struct ifaddrs *ifap, *ifa;
 	struct sockaddr *addr;
+#ifdef PURPLE_HAS_IPV6
 	char addrstr[INET6_ADDRSTRLEN];
+#else
+    char addrstr[INET_ADDRSTRLEN];
+#endif
 
 	ret = getifaddrs(&ifap);
 	if (ret != 0) {
@@ -1384,7 +1392,7 @@ bonjour_jabber_get_local_ips(int fd)
 				address_text = inet_ntop(addr->sa_family, &((struct sockaddr_in *)addr)->sin_addr,
 					addrstr, sizeof(addrstr));
 				break;
-#ifdef PF_INET6
+#ifdef PURPLE_HAS_IPV6
 			case AF_INET6:
 				address_text = inet_ntop(addr->sa_family, &((struct sockaddr_in6 *)addr)->sin6_addr,
 					addrstr, sizeof(addrstr));
@@ -1449,6 +1457,7 @@ bonjour_jabber_get_local_ips(int fd)
 
 void
 append_iface_if_linklocal(char *ip, guint32 interface_param) {
+#ifdef PURPLE_HAS_IPV6
 	struct in6_addr in6_addr;
 	int len_remain = INET6_ADDRSTRLEN - strlen(ip);
 
@@ -1461,4 +1470,8 @@ append_iface_if_linklocal(char *ip, guint32 interface_param) {
 
 	snprintf(ip + strlen(ip), len_remain, "%%%d",
 		 interface_param);
+#else
+    (void)ip;
+    (void)interface_param;
+#endif
 }

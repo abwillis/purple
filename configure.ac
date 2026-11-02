@@ -107,7 +107,8 @@ AC_CHECK_FUNCS(getopt_long,,
 
 dnl Check for inet_aton
 AC_CHECK_FUNC(inet_aton, , [AC_CHECK_LIB(resolv, inet_aton, ,
-				         [AC_MSG_ERROR([inet_aton not found])])])
+                         [AC_CHECK_LIB(socket, inet_aton, ,
+                          [AC_MSG_ERROR([inet_aton not found])])])])
 AC_CHECK_LIB(resolv, __res_query)
 AC_CHECK_LIB(nsl, gethostent)
 AC_CHECK_FUNC(socket, ,
@@ -154,6 +155,49 @@ AC_CHECK_DECL([IPV6_V6ONLY],
 	[AC_DEFINE([HAVE_IPV6_V6ONLY],[1],
 	[Define if the IPV6_V6ONLY setsockopt option exists])],
 	[], [#include <netinet/in.h>])
+
+dnl #######################################################################
+dnl # IPv6 support
+dnl #
+dnl # IPv6 is enabled automatically when the system headers provide it.  It
+dnl # is always turned off on OS/2, whose TCP/IP stack is IPv4-only, unless
+dnl # --enable-ipv6 is given explicitly.  Use --disable-ipv6 to force an
+dnl # IPv4-only build on any other platform.
+dnl #######################################################################
+AC_ARG_ENABLE(ipv6, [AC_HELP_STRING([--disable-ipv6],
+        [compile without IPv6 support (the default on OS/2)])],
+    [enable_ipv6="$enableval"; ipv6_explicit=yes],
+    [enable_ipv6=auto; ipv6_explicit=no])
+
+if test "x$enable_ipv6" = "xauto"; then
+    case "$host_os" in
+    os2*)
+        enable_ipv6=no
+        ;;
+    *)
+        enable_ipv6=yes
+        ;;
+    esac
+fi
+
+if test "x$enable_ipv6" = "xyes"; then
+    dnl Make sure the headers really offer everything libpurple uses.
+    AC_CHECK_TYPES([struct sockaddr_in6, struct in6_addr], [], [enable_ipv6=no], [
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>])
+fi
+
+if test "x$enable_ipv6" = "xyes"; then
+    if test "x$ipv6_explicit" = "xyes"; then
+        dnl Overrides the automatic OS/2 IPv4-only default in internal.h
+        AC_DEFINE([PURPLE_ENABLE_IPV6], [1],
+            [Define to build with IPv6 support even on OS/2])
+    fi
+else
+    AC_DEFINE([PURPLE_DISABLE_IPV6], [1],
+        [Define to build without any IPv6 support])
+fi
 
 dnl to prevent the g_stat()/g_unlink() crash,
 dnl (09:50:07) Robot101: LSchiere2: it's easy. +LC_SYS_LARGEFILE somewhere in configure.ac
@@ -335,6 +379,13 @@ AC_ARG_ENABLE(gtkui, [AC_HELP_STRING([--disable-gtkui],
 AC_ARG_ENABLE(consoleui, [AC_HELP_STRING([--disable-consoleui],
 		[compile without console user interface])],
 	[enable_consoleui=$enableval force_finch=$enableval], [enable_consoleui=yes force_finch=no])
+AC_ARG_ENABLE(gui, [AC_HELP_STRING([--disable-gui],
+        [build only libpurple (same as --disable-gtkui --disable-consoleui)])],
+    [if test "x$enableval" = "xno"; then
+        enable_gtkui=no
+        enable_consoleui=no
+        force_finch=no
+    fi], [])
 
 dnl #######################################################################
 dnl # Check for GTK+ 2.10 and other things used by the GTK UI
@@ -1215,6 +1266,33 @@ AM_CONDITIONAL(STATIC_SILC, test "x$static_silc" = "xyes" -a "x$have_silc" = "xy
 AM_CONDITIONAL(STATIC_SIMPLE, test "x$static_simple" = "xyes")
 AM_CONDITIONAL(STATIC_ZEPHYR, test "x$static_zephyr" = "xyes")
 AC_SUBST(STATIC_LINK_LIBS)
+
+dnl #######################################################################
+dnl # DLL platforms (OS/2)
+dnl #
+dnl # An OS/2 DLL can not contain unresolved symbols, so libtool refuses to
+dnl # build the protocol and other plugin modules as shared objects unless
+dnl # they are linked with -no-undefined and against libpurple itself.  That
+dnl # in turn means libpurple must be built before the plugins that use it.
+dnl #######################################################################
+case "$host_os" in
+os2*)
+    purple_dll_platform=yes
+    PURPLE_DLL_LDFLAGS="-no-undefined"
+    PURPLE_DLL_LIBS='$(top_builddir)/libpurple/libpurple.la'
+    ;;
+*)
+    purple_dll_platform=no
+    PURPLE_DLL_LDFLAGS=""
+    PURPLE_DLL_LIBS=""
+    ;;
+esac
+AC_SUBST(PURPLE_DLL_LDFLAGS)
+AC_SUBST(PURPLE_DLL_LIBS)
+AM_CONDITIONAL(PURPLE_DLL_PLATFORM, test "x$purple_dll_platform" = "xyes")
+AM_CONDITIONAL(PURPLE_DLL_STATIC_PRPLS,
+    test "x$purple_dll_platform" = "xyes" -a "x$STATIC_PRPLS" != "x")
+
 AC_DEFINE_UNQUOTED(STATIC_PROTO_INIT, $extern_init static void static_proto_init(void) { $load_proto },
 	[Loads static protocol plugin module initialization functions.])
 
@@ -2631,6 +2709,7 @@ echo
 echo Enable Gestures............... : $enable_gestures
 echo Protocols to build dynamically : $DYNAMIC_PRPLS
 echo Protocols to link statically.. : $STATIC_PRPLS
+echo Build with IPv6 support...... : $enable_ipv6
 echo
 echo Build with GStreamer support.. : $enable_gst
 echo Build for GStreamer version... : $with_gstreamer

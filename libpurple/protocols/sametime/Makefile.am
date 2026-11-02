@@ -15,17 +15,18 @@ if STATIC_SAMETIME
 st = -DPURPLE_STATIC_PRPL
 noinst_LTLIBRARIES     = libsametime.la
 libsametime_la_CFLAGS  = $(AM_CFLAGS)
+libsametime_la_LIBADD  = $(GLIB_LIBS) $(MEANWHILE_LIBS)
 
 else
 
 st =
 pkg_LTLIBRARIES     = libsametime.la
+libsametime_la_LIBADD  = $(GLIB_LIBS) $(MEANWHILE_LIBS) $(PURPLE_DLL_LIBS)
 
 endif
 
 libsametime_la_SOURCES = $(SAMETIMESOURCES)
-libsametime_la_LDFLAGS = -module -avoid-version
-libsametime_la_LIBADD = $(GLIB_LIBS) $(MEANWHILE_LIBS)
+libsametime_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/libpurple \

@@ -28,7 +28,7 @@ NOVELLSOURCES = \
 
 AM_CFLAGS = $(st)
 
-libnovell_la_LDFLAGS = -module -avoid-version
+libnovell_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if STATIC_NOVELL
 
@@ -42,7 +42,7 @@ else
 st =
 pkg_LTLIBRARIES      = libnovell.la
 libnovell_la_SOURCES = $(NOVELLSOURCES)
-libnovell_la_LIBADD  = $(GLIB_LIBS)
+libnovell_la_LIBADD  = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
 
 endif
 

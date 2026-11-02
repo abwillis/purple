@@ -29,7 +29,19 @@ if USE_GCONFTOOL
 GCONF_DIR=data/gconf
 endif
 
+# On DLL platforms (OS/2) the protocol and other plugin modules are linked
+# against libpurple.la, so libpurple has to be built before they are.
+# Statically linked protocols are the exception: they are part of libpurple,
+# so they have to be built first.
+if PURPLE_DLL_PLATFORM
+if PURPLE_DLL_STATIC_PRPLS
+SUBDIRS = $(GCONF_DIR) protocols ciphers . plugins fuzzers tests example
+else
+SUBDIRS = $(GCONF_DIR) ciphers . plugins protocols fuzzers tests example
+endif
+else
 SUBDIRS = $(GCONF_DIR) plugins protocols ciphers . fuzzers tests example
+endif
 
 purple_coresources = \
 	account.c \

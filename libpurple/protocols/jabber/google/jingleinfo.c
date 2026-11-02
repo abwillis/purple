@@ -38,18 +38,26 @@ jabber_google_stun_lookup_cb(GSList *hosts, gpointer data,
 
 	if (hosts && g_slist_next(hosts)) {
 		struct sockaddr *addr = g_slist_next(hosts)->data;
+#ifdef PURPLE_HAS_IPV6
 		char dst[INET6_ADDRSTRLEN];
+#else
+        char dst[INET_ADDRSTRLEN];
+#endif
 		int port;
 
+#ifdef PURPLE_HAS_IPV6
 		if (addr->sa_family == AF_INET6) {
 			inet_ntop(addr->sa_family, &((struct sockaddr_in6 *) addr)->sin6_addr,
 				dst, sizeof(dst));
 			port = ntohs(((struct sockaddr_in6 *) addr)->sin6_port);
 		} else {
+#endif
 			inet_ntop(addr->sa_family, &((struct sockaddr_in *) addr)->sin_addr,
 				dst, sizeof(dst));
 			port = ntohs(((struct sockaddr_in *) addr)->sin_port);
+#ifdef PURPLE_HAS_IPV6
 		}
+#endif
 
 		if (js->stun_ip)
 			g_free(js->stun_ip);

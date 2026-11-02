@@ -113,7 +113,7 @@ GGSOURCES = \
 
 AM_CFLAGS = $(st)
 
-libgg_la_LDFLAGS = -module -avoid-version
+libgg_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if STATIC_GG
 
@@ -128,7 +128,7 @@ else
 st =
 pkg_LTLIBRARIES = libgg.la
 libgg_la_SOURCES = $(GGSOURCES)
-libgg_la_LIBADD  = $(GLIB_LIBS) $(LIBGADU_LIBS) $(INTGG_LIBS)
+libgg_la_LIBADD  = $(GLIB_LIBS) $(LIBGADU_LIBS) $(INTGG_LIBS) $(PURPLE_DLL_LIBS)
 
 endif
 

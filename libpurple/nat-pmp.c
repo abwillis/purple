@@ -134,7 +134,7 @@ get_rtaddrs(int bitmask, struct sockaddr *sa, struct sockaddr *addrs[])
 #else
 			if (sa->sa_family == AF_INET)
 				sa = (struct sockaddr*)(sizeof(struct sockaddr_in) + (char *)sa);
-#ifdef AF_INET6
+#ifdef PURPLE_HAS_IPV6
 			else if (sa->sa_family == AF_INET6)
 				sa = (struct sockaddr*)(sizeof(struct sockaddr_in6) + (char *)sa);
 #endif

@@ -2260,7 +2260,11 @@ static void try_connect(PurpleProxyConnectData *connect_data)
 {
 	socklen_t addrlen;
 	struct sockaddr *addr;
+#ifdef PURPLE_HAS_IPV6
 	char ipaddr[INET6_ADDRSTRLEN];
+#else
+    char ipaddr[INET_ADDRSTRLEN];
+#endif
 
 	addrlen = GPOINTER_TO_INT(connect_data->hosts->data);
 	connect_data->hosts = g_slist_remove(connect_data->hosts, connect_data->hosts->data);
@@ -2270,9 +2274,11 @@ static void try_connect(PurpleProxyConnectData *connect_data)
 	if (addr->sa_family == AF_INET)
 		inet_ntop(addr->sa_family, &((struct sockaddr_in *)addr)->sin_addr,
 				ipaddr, sizeof(ipaddr));
+#ifdef PURPLE_HAS_IPV6
 	else if (addr->sa_family == AF_INET6)
 		inet_ntop(addr->sa_family, &((struct sockaddr_in6 *)addr)->sin6_addr,
 				ipaddr, sizeof(ipaddr));
+#endif
 #else
 	memcpy(ipaddr, inet_ntoa(((struct sockaddr_in *)addr)->sin_addr),
 			sizeof(ipaddr));

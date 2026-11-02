@@ -3,10 +3,10 @@ EXTRA_DIST = \
 
 plugindir = $(libdir)/purple-$(PURPLE_MAJOR_VERSION)
 
-ssl_la_LDFLAGS        = -module -avoid-version
-ssl_gnutls_la_LDFLAGS = -module -avoid-version
-ssl_nss_la_LDFLAGS    = -module -avoid-version
-nss_prefs_la_LDFLAGS  = -module -avoid-version
+ssl_la_LDFLAGS        = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+ssl_gnutls_la_LDFLAGS = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+ssl_nss_la_LDFLAGS    = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
+nss_prefs_la_LDFLAGS  = -module -avoid-version $(PURPLE_DLL_LDFLAGS)
 
 if PLUGINS
 
@@ -43,10 +43,10 @@ ssl_gnutls_la_SOURCES = ssl-gnutls.c
 ssl_nss_la_SOURCES    = ssl-nss.c
 nss_prefs_la_SOURCES  = nss-prefs.c
 
-ssl_la_LIBADD        = $(GLIB_LIBS)
-ssl_gnutls_la_LIBADD = $(GLIB_LIBS) $(GNUTLS_LIBS)
-ssl_nss_la_LIBADD    = $(GLIB_LIBS) $(NSS_LIBS)
-nss_prefs_la_LIBADD  = $(GLIB_LIBS) $(NSS_LIBS)
+ssl_la_LIBADD        = $(GLIB_LIBS) $(PURPLE_DLL_LIBS)
+ssl_gnutls_la_LIBADD = $(GLIB_LIBS) $(GNUTLS_LIBS) $(PURPLE_DLL_LIBS)
+ssl_nss_la_LIBADD    = $(GLIB_LIBS) $(NSS_LIBS) $(PURPLE_DLL_LIBS)
+nss_prefs_la_LIBADD  = $(GLIB_LIBS) $(NSS_LIBS) $(PURPLE_DLL_LIBS)
 
 endif # PLUGINS
 

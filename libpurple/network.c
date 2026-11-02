@@ -231,14 +231,24 @@ purple_network_get_all_local_system_ips(void)
 
 	for (ifa = start; ifa; ifa = ifa->ifa_next) {
 		int family = ifa->ifa_addr ? ifa->ifa_addr->sa_family : AF_UNSPEC;
+#ifdef PURPLE_HAS_IPV6
 		char host[INET6_ADDRSTRLEN];
+#else
+        char host[INET_ADDRSTRLEN];
+#endif
 		const char *tmp = NULL;
 
+#ifdef PURPLE_HAS_IPV6
 		if ((family != AF_INET && family != AF_INET6) || ifa->ifa_flags & IFF_LOOPBACK)
 			continue;
+#else
+        if (family != AF_INET || ifa->ifa_flags & IFF_LOOPBACK)
+            continue;
+#endif
 
 		if (family == AF_INET)
 			tmp = inet_ntop(family, &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr, host, sizeof(host));
+#ifdef PURPLE_HAS_IPV6
 		else {
 			struct sockaddr_in6 *sockaddr = (struct sockaddr_in6 *)ifa->ifa_addr;
 			/* Peer-peer link-local communication is a big TODO.  I am not sure
@@ -249,6 +259,7 @@ purple_network_get_all_local_system_ips(void)
 			if (!IN6_IS_ADDR_LINKLOCAL(&sockaddr->sin6_addr))
 				tmp = inet_ntop(family, &sockaddr->sin6_addr, host, sizeof(host));
 		}
+#endif
 		if (tmp != NULL)
 			result = g_list_prepend(result, g_strdup(tmp));
 	}
@@ -410,10 +421,22 @@ purple_network_do_listen(unsigned short port, int socket_family, int socket_type
 	const int on = 1;
 	PurpleNetworkListenData *listen_data;
 	unsigned short actual_port;
+
 #ifdef HAVE_GETADDRINFO
 	int errnum;
 	struct addrinfo hints, *res, *next;
 	char serv[6];
+
+#ifdef PURPLE_DISABLE_IPV6
+    /* IPv4-only build: AF_UNSPEC means AF_INET, anything else is refused. */
+    if (socket_family == AF_UNSPEC)
+        socket_family = AF_INET;
+    else if (socket_family != AF_INET) {
+        purple_debug_warning("network", "Address family %d is disabled in "
+                             "this IPv4-only build\n", socket_family);
+        return NULL;
+    }
+#endif
 
 	/*
 	 * Get a list of addresses on this machine.
@@ -1028,15 +1051,23 @@ purple_network_ip_lookup_cb(GSList *hosts, gpointer data,
 
 	if (hosts && g_slist_next(hosts)) {
 		struct sockaddr *addr = g_slist_next(hosts)->data;
+#ifdef PURPLE_HAS_IPV6
 		char dst[INET6_ADDRSTRLEN];
+#else
+        char dst[INET_ADDRSTRLEN];
+#endif
 
+#ifdef PURPLE_HAS_IPV6
 		if (addr->sa_family == AF_INET6) {
 			inet_ntop(addr->sa_family, &((struct sockaddr_in6 *) addr)->sin6_addr,
 				dst, sizeof(dst));
 		} else {
+#endif
 			inet_ntop(addr->sa_family, &((struct sockaddr_in *) addr)->sin_addr,
 				dst, sizeof(dst));
+#ifdef PURPLE_HAS_IPV6
 		}
+#endif
 
 		*ip = g_strdup(dst);
 		purple_debug_info("network", "set IP address: %s\n", *ip);
